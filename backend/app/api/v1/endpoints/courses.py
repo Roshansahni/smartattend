@@ -10,11 +10,13 @@ from app.services import course_service
 router = APIRouter(prefix="/courses", tags=["Courses"])
 admin_only = RoleChecker(["admin", "super_admin"])
 
-@router.post("/", response_model=CourseResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("", response_model=CourseResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("/", response_model=CourseResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)], include_in_schema=False)
 async def create_course(data: CourseCreate, db: AsyncSession = Depends(get_db)):
     return await course_service.create_course(data, db)
 
-@router.get("/", response_model=list[CourseResponse])
+@router.get("", response_model=list[CourseResponse])
+@router.get("/", response_model=list[CourseResponse], include_in_schema=False)
 async def list_courses(db: AsyncSession = Depends(get_db)):
     return await course_service.list_courses(db)
 

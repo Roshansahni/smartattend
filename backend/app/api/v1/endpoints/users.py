@@ -15,7 +15,8 @@ admin_only = RoleChecker(["admin", "super_admin"])
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
     return UserResponse.model_validate(current_user)
 
-@router.get("/", response_model=list[UserResponse], dependencies=[Depends(admin_only)])
+@router.get("", response_model=list[UserResponse], dependencies=[Depends(admin_only)])
+@router.get("/", response_model=list[UserResponse], dependencies=[Depends(admin_only)], include_in_schema=False)
 async def list_all_users(db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(User))
     return [UserResponse.model_validate(u) for u in res.scalars().all()]

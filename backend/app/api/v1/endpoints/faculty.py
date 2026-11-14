@@ -9,11 +9,13 @@ from app.services import faculty_service
 router = APIRouter(prefix="/faculty", tags=["Faculty"])
 admin_only = RoleChecker(["admin", "super_admin"])
 
-@router.post("/", response_model=FacultyResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("", response_model=FacultyResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("/", response_model=FacultyResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)], include_in_schema=False)
 async def create_faculty(data: FacultyCreate, db: AsyncSession = Depends(get_db)):
     return await faculty_service.create_faculty(data, db)
 
-@router.get("/", dependencies=[Depends(admin_only)])
+@router.get("", dependencies=[Depends(admin_only)])
+@router.get("/", dependencies=[Depends(admin_only)], include_in_schema=False)
 async def list_faculty(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),

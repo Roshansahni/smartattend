@@ -12,12 +12,14 @@ from app.utils.csv_parser import parse_students_csv
 router = APIRouter(prefix="/students", tags=["Students"])
 admin_only = RoleChecker(["admin", "super_admin"])
 
-@router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("", response_model=StudentResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)])
+@router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_only)], include_in_schema=False)
 async def create_student(data: StudentCreate, db: AsyncSession = Depends(get_db)):
     student = await student_service.create_student(data, db)
     return student
 
-@router.get("/", dependencies=[Depends(admin_only)])
+@router.get("", dependencies=[Depends(admin_only)])
+@router.get("/", dependencies=[Depends(admin_only)], include_in_schema=False)
 async def list_students(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
