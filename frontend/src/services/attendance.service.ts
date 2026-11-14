@@ -2,6 +2,15 @@ import { api } from './api';
 import type { AttendanceSession, QRTokenData, AttendanceRecord, LiveAttendanceRecord } from '@/types';
 
 export const attendanceService = {
+  async startCourseSession(courseId: string) {
+    return (await api.post(`/attendance/course/${courseId}/start`)).data;
+  },
+  async endCourseSession(courseId: string) {
+    return (await api.post(`/attendance/course/${courseId}/end`)).data;
+  },
+  async getCourseStatus(courseId: string) {
+    return (await api.get(`/attendance/course/${courseId}/status`)).data;
+  },
   async createSession(data: any): Promise<AttendanceSession> {
     return (await api.post<AttendanceSession>('/attendance/sessions', data)).data;
   },

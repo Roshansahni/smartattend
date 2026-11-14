@@ -20,6 +20,131 @@ router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
 faculty_or_admin = RoleChecker(["faculty", "admin", "super_admin"])
 
+@router.post("/course/{course_id}/start")
+async def start_course_session(
+    course_id: uuid.UUID,
+    current_user=Depends(faculty_or_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.models.faculty import FacultyProfile
+    from app.models.course import AcademicSession, Course
+    from app.models.attendance import AttendanceSession
+    from datetime import datetime, timezone
+    
+    fac_res = await db.execute(select(FacultyProfile).where(FacultyProfile.user_id == current_user.id))
+    faculty = fac_res.scalar_one_or_none()
+    if not faculty:
+        raise HTTPException(status_code=404, detail="Faculty profile not found")
+        
+    stmt = select(AttendanceSession).where(
+        AttendanceSession.course_id == course_id,
+        AttendanceSession.faculty_id == faculty.id,
+        AttendanceSession.is_active == True
+    )
+    existing = (await db.execute(stmt)).scalar_one_or_none()
+    if not existing:
+        acad_sess = (await db.execute(select(AcademicSession).where(AcademicSession.is_current == True))).scalar_one_or_none()
+        if not acad_sess:
+            acad_sess = (await db.execute(select(AcademicSession))).scalar_one_or_none()
+        if not acad_sess:
+            from datetime import date
+            acad_sess = AcademicSession(
+                id=uuid.uuid4(),
+                name="Current Academic Session",
+                start_date=date(2025, 1, 1),
+                end_date=date(2025, 12, 31),
+                is_current=True
+            )
+            db.add(acad_sess)
+            await db.flush()
+
+        course = (await db.execute(select(Course).where(Course.id == course_id))).scalar_one_or_none()
+        title = f"{course.name} - Attendance" if course else "Class Attendance"
+
+        existing = AttendanceSession(
+            id=uuid.uuid4(),
+            course_id=course_id,
+            faculty_id=faculty.id,
+            academic_session_id=acad_sess.id,
+            title=title,
+            is_active=True,
+            started_at=datetime.now(tz=timezone.utc),
+            gps_required=False,
+            location_radius_meters=100
+        )
+        db.add(existing)
+        await db.flush()
+
+    qr_data = await attendance_service.generate_qr_for_session(existing.id, current_user.id, db)
+    return {
+        "session_id": str(existing.id),
+        "qr": qr_data,
+        "is_active": True
+    }
+
+
+@router.post("/course/{course_id}/end")
+async def end_course_session(
+    course_id: uuid.UUID,
+    current_user=Depends(faculty_or_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.models.faculty import FacultyProfile
+    from app.models.attendance import AttendanceSession
+    from datetime import datetime, timezone
+
+    fac_res = await db.execute(select(FacultyProfile).where(FacultyProfile.user_id == current_user.id))
+    faculty = fac_res.scalar_one_or_none()
+    if not faculty:
+        raise HTTPException(status_code=404, detail="Faculty profile not found")
+
+    stmt = select(AttendanceSession).where(
+        AttendanceSession.course_id == course_id,
+        AttendanceSession.faculty_id == faculty.id,
+        AttendanceSession.is_active == True
+    )
+    existing = (await db.execute(stmt)).scalar_one_or_none()
+    if existing:
+        existing.is_active = False
+        existing.ended_at = datetime.now(tz=timezone.utc)
+        db.add(existing)
+        await db.commit()
+    return {"message": "Session concluded successfully", "is_active": False}
+
+
+@router.get("/course/{course_id}/status")
+async def get_course_session_status(
+    course_id: uuid.UUID,
+    current_user=Depends(faculty_or_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.models.faculty import FacultyProfile
+    from app.models.attendance import AttendanceSession
+
+    fac_res = await db.execute(select(FacultyProfile).where(FacultyProfile.user_id == current_user.id))
+    faculty = fac_res.scalar_one_or_none()
+    if not faculty:
+        return {"is_active": False}
+
+    stmt = select(AttendanceSession).where(
+        AttendanceSession.course_id == course_id,
+        AttendanceSession.faculty_id == faculty.id,
+        AttendanceSession.is_active == True
+    )
+    existing = (await db.execute(stmt)).scalar_one_or_none()
+    if not existing:
+        return {"is_active": False}
+
+    qr_data = await attendance_service.generate_qr_for_session(existing.id, current_user.id, db)
+    records = await attendance_service.get_session_live_attendance(existing.id, db)
+    return {
+        "is_active": True,
+        "session_id": str(existing.id),
+        "qr": qr_data,
+        "records": records
+    }
+
+
 @router.post("/sessions", response_model=AttendanceSessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_session(
     data: AttendanceSessionCreate,
