@@ -15,9 +15,9 @@ const schema = z.object({
 });
 
 export default function LoginPage() {
-  const { login, role } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<z.infer<typeof schema>>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
   });
 
@@ -29,11 +29,6 @@ export default function LoginPage() {
     } catch (err: any) {
       toast.error(err.response?.data?.detail || err.message || 'Authentication failed');
     }
-  };
-
-  const fillCredentials = (email: string, pass: string) => {
-    setValue('email', email, { shouldValidate: true });
-    setValue('password', pass, { shouldValidate: true });
   };
 
   return (
@@ -52,44 +47,6 @@ export default function LoginPage() {
           <Input label="Password" type="password" leftIcon={<Lock className="h-4 w-4" />} error={errors.password?.message} {...register('password')} />
           <Button type="submit" className="w-full mt-2" isLoading={isSubmitting}>Sign In</Button>
         </form>
-
-        <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-xs text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
-          <p className="font-semibold mb-2 text-slate-900 dark:text-white">⚡ Quick 1-Click Demo Fill:</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => fillCredentials('student1@smartattend.com', 'Student@123')}
-              className="p-2 text-left bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-primary-500 hover:text-primary-600 transition text-[11px]"
-            >
-              🎓 <strong>Student</strong>
-              <div className="text-[10px] text-slate-400 truncate">student1@smartattend.com</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials('faculty@smartattend.com', 'Faculty@123')}
-              className="p-2 text-left bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-primary-500 hover:text-primary-600 transition text-[11px]"
-            >
-              👨‍🏫 <strong>Faculty</strong>
-              <div className="text-[10px] text-slate-400 truncate">faculty@smartattend.com</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials('admin@smartattend.com', 'Admin@123')}
-              className="p-2 text-left bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-primary-500 hover:text-primary-600 transition text-[11px]"
-            >
-              🛡️ <strong>Admin</strong>
-              <div className="text-[10px] text-slate-400 truncate">admin@smartattend.com</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials('superadmin@smartattend.com', 'Admin@123')}
-              className="p-2 text-left bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-primary-500 hover:text-primary-600 transition text-[11px]"
-            >
-              ⚙️ <strong>Super Admin</strong>
-              <div className="text-[10px] text-slate-400 truncate">superadmin@smartattend.com</div>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
