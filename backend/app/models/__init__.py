@@ -8,3 +8,6 @@ from app.models.enrollment import Enrollment, CourseFacultyAssignment  # noqa: F
 from app.models.attendance import AttendanceSession, QRToken, AttendanceRecord  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
 from app.models.audit import AuditLog, PasswordResetToken  # noqa: F401
+from app.models.leave import LeaveApplication  # noqa: F401
+from app.models.timetable import TimetableEntry  # noqa: F401
+from app.models.dispute import AttendanceDispute  # noqa: F401
