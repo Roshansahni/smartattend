@@ -8,14 +8,20 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-# Create async engine — echo=False in production
-engine = create_async_engine(
-    settings.database_url,
-    echo=settings.debug,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-)
+# Create async engine — auto-detects SQLite vs PostgreSQL
+if "sqlite" in settings.database_url:
+    engine = create_async_engine(
+        settings.database_url,
+        echo=settings.debug,
+    )
+else:
+    engine = create_async_engine(
+        settings.database_url,
+        echo=settings.debug,
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+    )
 
 # Session factory
 AsyncSessionLocal = async_sessionmaker(

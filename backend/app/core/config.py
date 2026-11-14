@@ -4,13 +4,16 @@ Uses Pydantic Settings for type-safe config management.
 """
 from functools import lru_cache
 from typing import List
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_FILE = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     """All application settings loaded from .env file."""
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
     # Database
     database_url: str = "postgresql+asyncpg://smartattend:password@localhost:5432/smartattend_db"
@@ -29,7 +32,7 @@ class Settings(BaseSettings):
     # App
     app_name: str = "SmartAttend"
     debug: bool = True
-    allowed_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    allowed_origins: str = "http://localhost:5173,http://localhost:3000"
 
     # QR
     qr_token_expire_seconds: int = 30
@@ -45,12 +48,9 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
 
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    @property
+    def cors_origins(self) -> List[str]:
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
 
 @lru_cache

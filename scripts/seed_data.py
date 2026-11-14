@@ -1,6 +1,12 @@
 import asyncio
 import uuid
+import sys
+from pathlib import Path
 from datetime import datetime, date
+
+backend_path = Path(__file__).resolve().parent.parent / "backend"
+sys.path.insert(0, str(backend_path))
+
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from app.core.config import get_settings
 from app.core.security import get_password_hash

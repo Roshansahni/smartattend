@@ -4,7 +4,7 @@ from typing import Optional, List
 from datetime import date
 from sqlalchemy import String, Boolean, Integer, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from app.db.base import UUID
 from app.db.base import Base, TimestampMixin
 
 

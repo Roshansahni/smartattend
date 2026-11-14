@@ -2,9 +2,12 @@
 Database base configuration and mixins for SmartAttend.
 """
 from datetime import datetime
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, Uuid, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+# Cross-database compatible types (works for both PostgreSQL and SQLite)
+UUID = Uuid
+JSONB = JSON
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
