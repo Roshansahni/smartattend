@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 export function getBaseUrl(): string {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
   if (typeof window !== 'undefined') {
     const custom = localStorage.getItem('smartattend_custom_api');
     if (custom) return custom;
     if (window.location.hostname.includes('github.io')) {
       return 'https://feeds-muslim-ids-transit.trycloudflare.com/api/v1';
     }
+  }
+  if (import.meta.env.VITE_API_BASE_URL && !import.meta.env.VITE_API_BASE_URL.startsWith('/')) {
+    return import.meta.env.VITE_API_BASE_URL;
   }
   return '/api/v1';
 }
