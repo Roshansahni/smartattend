@@ -47,6 +47,29 @@ export default function LoginPage() {
           <Input label="Password" type="password" leftIcon={<Lock className="h-4 w-4" />} error={errors.password?.message} {...register('password')} />
           <Button type="submit" className="w-full mt-2" isLoading={isSubmitting}>Sign In</Button>
         </form>
+
+        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-center">
+          <button
+            type="button"
+            onClick={() => {
+              const current = localStorage.getItem('smartattend_custom_api') || '';
+              const newUrl = window.prompt('Configure Backend API Endpoint (e.g. https://...trycloudflare.com/api/v1 or /api/v1):', current);
+              if (newUrl !== null) {
+                if (newUrl.trim()) {
+                  localStorage.setItem('smartattend_custom_api', newUrl.trim());
+                  toast.success('Updated Backend API URL');
+                } else {
+                  localStorage.removeItem('smartattend_custom_api');
+                  toast.success('Reset to default API URL');
+                }
+                window.location.reload();
+              }
+            }}
+            className="text-[11px] text-slate-400 hover:text-primary-600 transition-colors"
+          >
+            ⚙️ Configure Backend Endpoint
+          </button>
+        </div>
       </div>
     </div>
   );
