@@ -14,11 +14,16 @@ export default function FacultyDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-primary-600 to-indigo-700 p-6 rounded-2xl text-white shadow-lg">
         <div>
-          <h2 className="text-2xl font-bold">Faculty Portal</h2>
-          <p className="text-sm text-slate-500">Manage assigned courses and conduct live QR attendance sessions</p>
+          <h2 className="text-2xl font-bold">Faculty Portal & QR Command</h2>
+          <p className="text-xs text-primary-100 mt-1">Start dynamic rotating QR attendance sessions and monitor classroom rosters in real time</p>
         </div>
+        <Link to={`/faculty/session/${courses[0]?.id || 'bc8844a8-25a0-42e8-ad27-153ed7a89676'}`}>
+          <Button size="lg" className="bg-white text-primary-700 hover:bg-primary-50 font-semibold shadow-md flex items-center gap-2 border-0">
+            <Sparkles className="h-5 w-5 text-primary-600 animate-pulse" /> Launch Dynamic QR Session
+          </Button>
+        </Link>
       </div>
 
       {isLoading ? (

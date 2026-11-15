@@ -28,6 +28,7 @@ export default function Sidebar() {
 
   const facultyNav = [
     { to: '/faculty/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/faculty/session/bc8844a8-25a0-42e8-ad27-153ed7a89676', icon: QrCode, label: 'Generate Dynamic QR' },
     { to: '/faculty/manual', icon: CheckSquare, label: 'Manual Attendance' },
     { to: '/faculty/leaves', icon: FileText, label: 'Leave Approvals' },
     { to: '/faculty/reports', icon: BarChart3, label: 'Attendance Reports' },
